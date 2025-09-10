@@ -2,6 +2,8 @@ import express from "express";
 import { middleware } from "./middleware";
 import { CreateRoomSchema, CreateUserSchema, SigninSchema } from "@repo/common/types"
 import { prismaClient } from "@repo/db/client";
+import jwt from "jsonwebtoken";
+import { JWT_SECRET } from "@repo/backend-common/config";
 
 const app = express();
 app.use(express.json());
@@ -21,7 +23,11 @@ app.post("/signup", async (req, res) => {
       },
     });
 
-    res.json({ message: "User created", user });
+    const token = jwt.sign({
+      userId: user.id
+    }, JWT_SECRET);
+
+    res.json({ message: "User created", token });
   } catch (error) {
     res.status(500).json({ message: "Error creating user", error });
   }
@@ -43,7 +49,11 @@ app.post("/signin", async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    res.json({ message: "Signin successful", user });
+    const token = jwt.sign({
+      userId: user.id
+    }, JWT_SECRET);
+
+    res.json({ message: "Signin successful", token });
   } catch (error) {
     res.status(500).json({ message: "Error signing in", error });
   }
@@ -56,7 +66,21 @@ app.post("/room", middleware, async (req, res) => {
     return res.status(400).json({ message: "Incorrect inputs" });
   }
 
+  //@ts-ignore
+  const userId = req.userId;
 
+  try {
+    const room = await prismaClient.room.create({
+      data: {
+        slug: parsedData.data.slug,
+        adminId: userId,
+      },
+    });
+
+    res.json({ message: "Room created", room });
+  } catch (error) {
+    res.status(500).json({ message: "Error creating room", error });
+  }
 });
 
 app.listen(4000, () => {
