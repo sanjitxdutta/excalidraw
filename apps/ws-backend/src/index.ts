@@ -4,6 +4,7 @@ import { JWT_SECRET } from '@repo/backend-common/config';
 import { prismaClient } from "@repo/db/client";
 
 const wss = new WebSocketServer({ port: 8080 });
+console.log("Ws-backend is running on http://localhost:8080");
 
 interface User {
   ws: WebSocket,
