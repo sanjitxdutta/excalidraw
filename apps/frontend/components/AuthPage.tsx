@@ -123,11 +123,7 @@ export function AuthPage({ isSignin }: AuthPageProps) {
                     </div>
                 )}
 
-                <Button
-                    appName="Auth"
-                    className="w-full bg-black text-white py-2 rounded hover:bg-white hover:text-black border border-black transition cursor-pointer"
-                    onClick={handleSubmit}
-                >
+                <Button onClick={handleSubmit} variant="light">
                     {isSignin ? "Sign in" : "Sign up"}
                 </Button>
 

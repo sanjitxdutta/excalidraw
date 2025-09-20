@@ -1,27 +1,22 @@
-import { type JSX } from "react";
+import React from "react";
 
-export function Card({
-  className,
-  title,
-  children,
-  href,
-}: {
-  className?: string;
-  title: string;
+type CardProps = {
   children: React.ReactNode;
-  href: string;
-}): JSX.Element {
+  className?: string;
+  fullWidth?: boolean;
+};
+
+export const Card = ({
+  children,
+  className = "",
+  fullWidth = true,
+}: CardProps) => {
+  const widthClass = fullWidth ? "w-full" : "inline-flex";
   return (
-    <a
-      className={className}
-      href={`${href}?utm_source=create-turbo&utm_medium=basic&utm_campaign=create-turbo"`}
-      rel="noopener noreferrer"
-      target="_blank"
+    <div
+      className={`${widthClass} p-8 bg-white rounded-xl shadow-2xl transition-all ${className}`}
     >
-      <h2>
-        {title} <span>-&gt;</span>
-      </h2>
-      <p>{children}</p>
-    </a>
+      {children}
+    </div>
   );
-}
+};
