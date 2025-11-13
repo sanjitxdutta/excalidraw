@@ -1,47 +1,37 @@
 "use client";
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef } from "react";
+import useCanvasDraw from "@/app/draw/useCanvasDraw";
 
 export default function Canvas() {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useCanvasDraw(canvasRef);
 
-    useEffect(() => {
-        if (canvasRef.current) {
-            const canvas = canvasRef.current;
-            const ctx = canvas.getContext("2d");
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-            if (!ctx) {
-                return;
-            }
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
 
-            let clicked = false;
-            let startX = 0;
-            let startY = 0;
+    resizeCanvas();
 
-            canvas.addEventListener("mousedown", (e) => {
-                clicked = true;
-                startX = e.clientX;
-                startY = e.clientY;
-            })
+    window.addEventListener("resize", resizeCanvas);
 
-            canvas.addEventListener("mouseup", (e) => {
-                clicked = false;
-                // console.log(e.clientX);
-                // console.log(e.clientY);
-            })
+    return () => window.removeEventListener("resize", resizeCanvas);
+  }, []);
 
-            canvas.addEventListener("mousemove", (e) => {
-                if (clicked) {
-                    const width = e.clientX - startX;
-                    const height = e.clientY - startY;
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.strokeRect(startX, startY, width, height);
-                }
-            })
-        }
-    }, [canvasRef]);
-
-    return <div>
-        <canvas ref={canvasRef} width={500} height={500} style={{ backgroundColor: "white" }}></canvas>
-    </div>
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        backgroundColor: "black",
+        display: "block",
+        width: "100vw",
+        height: "100vh",
+      }}
+    ></canvas>
+  );
 }
