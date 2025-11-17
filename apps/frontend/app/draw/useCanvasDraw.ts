@@ -102,7 +102,6 @@ export default function useCanvasDraw(
       setExistingShapes(prev => [...prev, newShape]);
 
       if (!socket || socket.readyState !== WebSocket.OPEN) {
-        console.warn("Socket not open. Cannot send message.");
         return;
       }
 

@@ -22,7 +22,7 @@ export function Canvas({ roomId, socket }: { roomId: string, socket: WebSocket }
         return () => window.removeEventListener("resize", resizeCanvas);
     }, []);
 
-        useCanvasDraw(canvasRef, roomId, socket);
+    useCanvasDraw(canvasRef, roomId, socket);
 
     return <div className="relative w-screen h-screen overflow-hidden bg-black text-white">
 
