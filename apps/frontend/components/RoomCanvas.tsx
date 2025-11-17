@@ -25,7 +25,6 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
         };
     }, [roomId]);
 
-
     if (!socket) {
         return (
             <div className="w-full h-[80vh] flex flex-col items-center justify-center bg-black text-white">

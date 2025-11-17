@@ -15,7 +15,7 @@ export default function LandingPage() {
           <a href="#features" className="text-sm hover:underline cursor-pointer">Features</a>
           <a href="#about" className="text-sm hover:underline cursor-pointer">About</a>
           <a href="#footer" className="text-sm hover:underline cursor-pointer">Contact</a>
-          <Button fullWidth={false} onClick={() => (window.location.href = "/signup")}>
+          <Button fullWidth={false} variant="light" onClick={() => (window.location.href = "/signup")}>
             Get Started
           </Button>
         </div>
@@ -31,7 +31,7 @@ export default function LandingPage() {
             Sketch, brainstorm, and collaborate with your team in real-time — right from your browser.
           </p>
           <div className="max-w-xs mx-auto">
-            <Button onClick={() => (window.location.href = "/signup")}>
+            <Button variant="light" onClick={() => (window.location.href = "/signup")}>
               Start Drawing
             </Button>
           </div>
@@ -70,7 +70,7 @@ export default function LandingPage() {
             </Card>
           </div>
           <div className="mt-12 text-center">
-            <Button fullWidth={false}>Learn More</Button>
+            <Button variant="dark" fullWidth={false}>Learn More</Button>
           </div>
         </div>
       </section>

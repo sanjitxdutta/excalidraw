@@ -120,3 +120,42 @@ app.get("/room/:slug", async (req, res) => {
 app.listen(4000, () => {
   console.log("Server running on http://localhost:4000");
 });
+
+app.get("/myrooms", middleware, async (req, res) => {
+  //@ts-ignore
+  const userId = req.userId;
+
+  const rooms = await prismaClient.room.findMany({
+    where: { adminId: userId }
+  });
+
+  res.json({ rooms });
+});
+
+app.get("/search/:query", async (req, res) => {
+  const query = req.params.query;
+
+  try {
+    const rooms = await prismaClient.room.findMany({
+      where: {
+        slug: {
+          contains: query,
+          mode: "insensitive",
+        },
+      },
+      include: {
+        admin: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    res.json({ rooms });
+  } catch (error) {
+    res.status(500).json({ message: "Error searching rooms", error });
+  }
+});
