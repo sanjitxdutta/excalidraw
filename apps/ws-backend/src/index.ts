@@ -98,5 +98,5 @@ wss.on('connection', function connection(ws, request) {
     }
   });
 
-  ws.send('something');
+  ws.send(JSON.stringify({ type: "connected" }));
 });

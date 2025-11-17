@@ -1,15 +1,11 @@
-"use client";
-
-import { useEffect, useRef, useState } from "react";
 import useCanvasDraw from "@/app/draw/useCanvasDraw";
 import ShapeNavbar from "@/components/ShapeNavbar";
 import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 
-export function Canvas({ roomId }: { roomId: string }) {
+export function Canvas({ roomId, socket }: { roomId: string, socket: WebSocket }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [showInstructions, setShowInstructions] = useState(true);
-
-    useCanvasDraw(canvasRef, roomId);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -26,39 +22,39 @@ export function Canvas({ roomId }: { roomId: string }) {
         return () => window.removeEventListener("resize", resizeCanvas);
     }, []);
 
-    return (
-        <div className="relative w-screen h-screen overflow-hidden bg-black text-white">
+        useCanvasDraw(canvasRef, roomId, socket);
 
-            <ShapeNavbar onToolSelect={() => setShowInstructions(false)} />
+    return <div className="relative w-screen h-screen overflow-hidden bg-black text-white">
 
-            <canvas
-                ref={canvasRef}
-                className="block w-screen h-screen"
-                style={{ backgroundColor: "black", cursor: "crosshair" }}
-            />
+        <ShapeNavbar onToolSelect={() => setShowInstructions(false)} />
 
-            <AnimatePresence>
-                {showInstructions && (
-                    <motion.div
-                        initial={false}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.5 }}
-                        className="absolute inset-0 flex flex-col items-center justify-center text-center bg-black/70 backdrop-blur-sm z-40"
-                    >
-                        <h1 className="text-3xl font-bold mb-4">Welcome to DrawBoard 🎨</h1>
-                        <p className="text-gray-300 max-w-md leading-relaxed text-sm">
-                            Use the toolbar above to select shapes or tools like pencil, text, or eraser.<br />
-                            Click and drag anywhere on the canvas to start drawing.<br />
-                            Your creativity starts here — click a tool to begin!
-                        </p>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+        <canvas
+            ref={canvasRef}
+            className="block w-screen h-screen"
+            style={{ backgroundColor: "black", cursor: "crosshair" }}
+        />
 
-            <div className="absolute bottom-2 w-full text-center text-gray-400 text-xs select-none pointer-events-none z-50">
-                DrawBoard • v1.0.0 • sanjitxdutta © 2025
-            </div>
+        <AnimatePresence>
+            {showInstructions && (
+                <motion.div
+                    initial={false}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="absolute inset-0 flex flex-col items-center justify-center text-center bg-black/70 backdrop-blur-sm z-40"
+                >
+                    <h1 className="text-3xl font-bold mb-4">Welcome to DrawBoard 🎨</h1>
+                    <p className="text-gray-300 max-w-md leading-relaxed text-sm">
+                        Use the toolbar above to select shapes or tools like pencil, text, or eraser.<br />
+                        Click and drag anywhere on the canvas to start drawing.<br />
+                        Your creativity starts here — click a tool to begin!
+                    </p>
+                </motion.div>
+            )}
+        </AnimatePresence>
+
+        <div className="absolute bottom-2 w-full text-center text-gray-400 text-xs select-none pointer-events-none z-50">
+            DrawBoard • v1.0.0 • sanjitxdutta © 2025
         </div>
-    );
+    </div>
 }

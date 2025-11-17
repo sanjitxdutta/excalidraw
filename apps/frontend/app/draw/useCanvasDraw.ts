@@ -3,41 +3,53 @@ import { useEffect, RefObject, useState } from "react";
 
 type Shape =
   | {
-      type: "rect";
-      x: number;
-      y: number;
-      width: number;
-      height: number;
-    }
+    type: "rect";
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }
   | {
-      type: "circle";
-      centerX: number;
-      centerY: number;
-      radius: number;
-    };
+    type: "circle";
+    centerX: number;
+    centerY: number;
+    radius: number;
+  };
 
-const baseUrl =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 
 export default function useCanvasDraw(
   canvasRef: RefObject<HTMLCanvasElement | null>,
-  roomId: string
+  roomId: string,
+  socket: WebSocket
 ) {
   const [existingShapes, setExistingShapes] = useState<Shape[]>([]);
 
   useEffect(() => {
-    const loadShapes = async () => {
-      const res = await axios.get(`${baseUrl}/chats/${roomId}`);
-      const messages = res.data.messages;
+    const handleMessage = (event: MessageEvent) => {
+      const message = JSON.parse(event.data);
 
-      const shapes = messages.map((x: { message: string }) =>
-        JSON.parse(x.message)
-      );
-
-      setExistingShapes(shapes);
+      if (message.type === "chat") {
+        const parsedShape = JSON.parse(message.message);
+        setExistingShapes(prev => [...prev, parsedShape]);
+      }
     };
 
-    loadShapes();
+    socket.addEventListener("message", handleMessage);
+
+    return () => {
+      socket.removeEventListener("message", handleMessage);
+    };
+  }, [socket]);
+
+
+  useEffect(() => {
+    axios.get(`${baseUrl}/chats/${roomId}`).then(res => {
+      const shapes = res.data.messages.map((x: { message: string }) =>
+        JSON.parse(x.message)
+      );
+      setExistingShapes(shapes);
+    });
   }, [roomId]);
 
   useEffect(() => {
@@ -88,6 +100,18 @@ export default function useCanvasDraw(
       };
 
       setExistingShapes(prev => [...prev, newShape]);
+
+      if (!socket || socket.readyState !== WebSocket.OPEN) {
+        console.warn("Socket not open. Cannot send message.");
+        return;
+      }
+
+      socket.send(JSON.stringify({
+        type: "chat",
+        message: JSON.stringify(newShape),
+        roomId
+      }));
+
     };
 
     const handleMouseMove = (e: MouseEvent) => {
