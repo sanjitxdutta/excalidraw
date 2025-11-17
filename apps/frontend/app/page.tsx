@@ -4,18 +4,33 @@ import React from "react";
 import { Button } from "@repo/ui/button";
 import { Card } from "@repo/ui/card";
 import { PenTool, Users, Share2, Cloud, Github } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function LandingPage() {
+
+  const router = useRouter();
+
+  function handleGetStarted() {
+    const token = localStorage.getItem("token");
+    if (token) {
+      router.push("/rooms");
+    } else {
+      router.push("/signin");
+    }
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-black text-white">
       {/* NAV */}
       <nav className="w-full flex items-center justify-between px-8 py-4 bg-black border-b border-gray-800">
-        <div className="text-2xl font-bold">DrawBoard</div>
+        <div className="text-2xl font-bold cursor-pointer" onClick={() => router.push("/")}>
+          DrawBoard
+        </div>
         <div className="flex items-center gap-6">
           <a href="#features" className="text-sm hover:underline cursor-pointer">Features</a>
           <a href="#about" className="text-sm hover:underline cursor-pointer">About</a>
           <a href="#footer" className="text-sm hover:underline cursor-pointer">Contact</a>
-          <Button fullWidth={false} variant="light" onClick={() => (window.location.href = "/signup")}>
+          <Button fullWidth={false} variant="light" onClick={handleGetStarted}>
             Get Started
           </Button>
         </div>
@@ -31,12 +46,13 @@ export default function LandingPage() {
             Sketch, brainstorm, and collaborate with your team in real-time — right from your browser.
           </p>
           <div className="max-w-xs mx-auto">
-            <Button variant="light" onClick={() => (window.location.href = "/signup")}>
+            <Button variant="light" onClick={handleGetStarted}>
               Start Drawing
             </Button>
           </div>
         </div>
       </header>
+
 
       {/* FEATURES */}
       <section id="features" className="py-20 px-6 bg-white text-black">

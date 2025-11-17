@@ -65,11 +65,41 @@ export default function RoomsPage() {
     return (
         <div className="min-h-screen bg-black text-white flex">
 
-            {/* LEFT SIDEBAR */}
             <aside className="w-80 min-h-screen bg-black border-r border-gray-800 flex flex-col gap-8 p-6">
-                <h1 className="text-3xl font-bold tracking-tight">DrawBoard</h1>
 
-                {/* CREATE ROOM */}
+                <div className="flex items-center justify-between">
+                    <h1
+                        className="text-3xl font-bold tracking-tight cursor-pointer transition"
+                        onClick={() => router.push("/")}
+                    >
+                        DrawBoard
+                    </h1>
+
+                    <button
+                        className="text-white hover:text-red-400 transition"
+                        title="Logout"
+                        onClick={() => {
+                            localStorage.removeItem("token");
+                            router.push("/");
+                        }}
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="w-6 h-6"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"
+                            />
+                        </svg>
+                    </button>
+                </div>
+
                 <div className="bg-white text-black p-6 rounded-xl shadow-lg">
                     <h2 className="text-xl font-semibold mb-4">Create Room</h2>
 
@@ -83,7 +113,6 @@ export default function RoomsPage() {
                     <Button variant="dark" onClick={createRoom}>Create</Button>
                 </div>
 
-                {/* JOIN ROOM + SEARCH */}
                 <div className="bg-white text-black p-6 rounded-xl shadow-lg">
                     <h2 className="text-xl font-semibold mb-4">Join Room</h2>
 
@@ -120,16 +149,15 @@ export default function RoomsPage() {
                 </div>
             </aside>
 
-            {/* MAIN CONTENT */}
             <main className="flex-1 p-6 pr-10">
                 <div className="bg-white text-black rounded-2xl shadow-xl w-full h-full p-8 border border-gray-200 flex flex-col">
 
                     <h1 className="text-4xl font-bold text-center mb-8">Your Rooms</h1>
 
-                    <div className="space-y-5">
+                    <div className="flex-1 overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-3 max-h-[400px]">
 
                         {rooms.length === 0 && (
-                            <p className="text-gray-500 text-center">
+                            <p className="text-gray-500 text-center p-4">
                                 You haven't created any rooms yet.
                             </p>
                         )}
@@ -139,24 +167,21 @@ export default function RoomsPage() {
                                 key={room.id}
                                 onClick={() => router.push(`/canvas/${room.slug}`)}
                                 className="
-                                    group
-                                    flex items-center gap-4 
-                                    bg-white text-black 
-                                    border border-black
-                                    p-5 rounded-xl w-full cursor-pointer
-                                    transition-all duration-300 ease-in-out
-                                    hover:bg-black hover:text-white hover:border-white
-                                "
+                group
+                flex items-center gap-4 
+                bg-white text-black 
+                border border-black
+                p-5 rounded-xl w-full cursor-pointer
+                transition-all duration-300 ease-in-out
+                hover:bg-black hover:text-white hover:border-white"
                             >
-                                {/* Number chip */}
                                 <div
                                     className="
-                                        px-4 py-1 
-                                        bg-black text-white 
-                                        rounded-lg text-sm font-semibold shadow-sm
-                                        transition-all duration-300
-                                        group-hover:bg-white group-hover:text-black
-                                    "
+                    px-4 py-1 
+                    bg-black text-white 
+                    rounded-lg text-sm font-semibold shadow-sm
+                    transition-all duration-300
+                    group-hover:bg-white group-hover:text-black"
                                 >
                                     {index + 1}
                                 </div>
@@ -167,7 +192,6 @@ export default function RoomsPage() {
 
                     </div>
 
-                    {/* FOOTER */}
                     <div className="mt-auto pt-6 border-t border-gray-300 text-center text-gray-500 text-xs select-none">
                         DrawBoard • v1.0.0 • sanjitxdutta © 2025
                     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { X, Eye, EyeOff } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Button } from "@repo/ui/button";
@@ -20,6 +20,11 @@ export function AuthPage({ isSignin }: AuthPageProps) {
 
     const router = useRouter();
     const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) router.replace("/rooms");
+    }, []);
 
     async function handleSubmit() {
         try {
@@ -46,12 +51,7 @@ export function AuthPage({ isSignin }: AuthPageProps) {
                 name: isSignin ? undefined : name,
             });
 
-            // Store token
             localStorage.setItem("token", res.data.token);
-
-            alert(res.data.message);
-
-            // Redirect to dashboard
             router.push("/rooms");
 
         } catch (err: any) {
