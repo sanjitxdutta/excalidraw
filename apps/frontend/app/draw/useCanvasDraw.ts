@@ -20,7 +20,7 @@ const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 
 export default function useCanvasDraw(
   canvasRef: RefObject<HTMLCanvasElement | null>,
-  roomId: string,
+  roomId: number,
   socket: WebSocket
 ) {
   const [existingShapes, setExistingShapes] = useState<Shape[]>([]);

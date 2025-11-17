@@ -3,7 +3,7 @@ import ShapeNavbar from "@/components/ShapeNavbar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 
-export function Canvas({ roomId, socket }: { roomId: string, socket: WebSocket }) {
+export function Canvas({ roomId, socket }: { roomId: number, socket: WebSocket }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [showInstructions, setShowInstructions] = useState(true);
 

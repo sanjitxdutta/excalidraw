@@ -4,28 +4,37 @@ import { useEffect, useRef, useState } from "react";
 import { Canvas } from "./Canvas";
 import { getSocket } from "@/lib/socket";
 
-export function RoomCanvas({ roomId }: { roomId: string }) {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-
+export function RoomCanvas({ slug }: { slug: string }) {
+    const [roomId, setRoomId] = useState<number | null>(null);
     const [socket, setSocket] = useState<WebSocket | null>(null);
 
     useEffect(() => {
-        const ws = getSocket(roomId);
+        async function fetchRoom() {
+            const res = await fetch(`http://localhost:4000/room/${slug}`);
+            const data = await res.json();
 
-        const handleOpen = () => {
-            ws.send(JSON.stringify({ type: "join_room", roomId }));
-        };
+            if (!data.room) {
+                alert("Room not found");
+                return;
+            }
 
-        ws.addEventListener("open", handleOpen);
+            setRoomId(data.room.id);
 
-        setSocket(ws);
+            const ws = getSocket(slug);
+            ws.addEventListener("open", () => {
+                ws.send(JSON.stringify({
+                    type: "join_room",
+                    roomId: data.room.id
+                }));
+            });
 
-        return () => {
-            ws.removeEventListener("open", handleOpen);
-        };
-    }, [roomId]);
+            setSocket(ws);
+        }
 
-    if (!socket) {
+        fetchRoom();
+    }, [slug]);
+
+    if (roomId === null || socket === null) {
         return (
             <div className="w-full h-[80vh] flex flex-col items-center justify-center bg-black text-white">
                 <div className="relative w-16 h-16 mb-6">
@@ -43,7 +52,6 @@ export function RoomCanvas({ roomId }: { roomId: string }) {
             </div>
         );
     }
-
 
     return <Canvas roomId={roomId} socket={socket} />;
 }
