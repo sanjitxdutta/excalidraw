@@ -97,6 +97,28 @@ wss.on('connection', function connection(ws, request) {
       });
     }
 
+    if (parsedData.type === "delete_shape") {
+      const roomId = Number(parsedData.roomId);
+      const shapeString = parsedData.shape;
+
+      await prismaClient.chat.deleteMany({
+        where: {
+          roomId,
+          message: shapeString
+        }
+      });
+
+      users.forEach(user => {
+        if (user.rooms.includes(roomId)) {
+          user.ws.send(JSON.stringify({
+            type: "delete_shape",
+            shape: shapeString,
+            roomId
+          }));
+        }
+      });
+    }
+
   });
 
   ws.send(JSON.stringify({ type: "connected" }));

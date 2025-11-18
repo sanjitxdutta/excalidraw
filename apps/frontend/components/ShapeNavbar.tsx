@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 interface ShapeToolbarProps {
-    onToolSelect?: () => void;
+    onToolSelect?: (tool: string) => void;
 }
 
 export default function ShapeNavbar({ onToolSelect }: ShapeToolbarProps) {
@@ -31,7 +31,7 @@ export default function ShapeNavbar({ onToolSelect }: ShapeToolbarProps) {
 
     const handleClick = (name: string) => {
         setActiveTool(name);
-        if (onToolSelect) onToolSelect();
+        if (onToolSelect) onToolSelect(name);
     };
 
     return (

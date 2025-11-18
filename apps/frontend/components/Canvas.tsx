@@ -9,6 +9,7 @@ const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 export function Canvas({ roomId, socket }: { roomId: number; socket: WebSocket }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [showInstructions, setShowInstructions] = useState(true);
+    const [activeTool, setActiveTool] = useState("Rectangle");
 
     const [roomInfo, setRoomInfo] = useState<{ slug: string; admin: string }>({
         slug: "",
@@ -74,7 +75,7 @@ export function Canvas({ roomId, socket }: { roomId: number; socket: WebSocket }
         return () => window.removeEventListener("resize", resizeCanvas);
     }, []);
 
-    useCanvasDraw(canvasRef, roomId, socket);
+    useCanvasDraw(canvasRef, roomId, socket, activeTool);
 
     return (
         <div className="relative w-screen h-screen overflow-hidden bg-black text-white">
@@ -91,7 +92,10 @@ export function Canvas({ roomId, socket }: { roomId: number; socket: WebSocket }
 
                 <div className="flex flex-col items-center justify-center h-full">
                     <div className="flex items-center h-full">
-                        <ShapeNavbar onToolSelect={() => setShowInstructions(false)} />
+                        <ShapeNavbar onToolSelect={(tool) => {
+                            setActiveTool(tool);
+                            setShowInstructions(false);
+                        }} />
                     </div>
                     <div className="w-[60%] h-[2px] bg-white/50 rounded-full mt-1"></div>
                 </div>
