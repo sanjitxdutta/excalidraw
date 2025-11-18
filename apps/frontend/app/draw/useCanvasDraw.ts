@@ -44,12 +44,19 @@ export default function useCanvasDraw(
 
 
   useEffect(() => {
-    axios.get(`${baseUrl}/chats/${roomId}`).then(res => {
-      const shapes = res.data.messages.map((x: { message: string }) =>
-        JSON.parse(x.message)
-      );
-      setExistingShapes(shapes);
-    });
+    const token = localStorage.getItem("token");
+
+    axios.get(`${baseUrl}/chats/${roomId}`, {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : ""
+      }
+    })
+      .then(res => {
+        const shapes = res.data.messages.map((x: { message: string }) =>
+          JSON.parse(x.message)
+        );
+        setExistingShapes(shapes);
+      });
   }, [roomId]);
 
   useEffect(() => {

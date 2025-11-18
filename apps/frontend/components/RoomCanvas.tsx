@@ -1,33 +1,65 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Canvas } from "./Canvas";
 import { getSocket } from "@/lib/socket";
+import { useRouter } from "next/navigation";
 
 export function RoomCanvas({ slug }: { slug: string }) {
     const [roomId, setRoomId] = useState<number | null>(null);
     const [socket, setSocket] = useState<WebSocket | null>(null);
+    const [roomExists, setRoomExists] = useState<boolean | null>(null);
 
-    const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000"
+    const router = useRouter();
+    const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 
     useEffect(() => {
-        let ws: WebSocket | null = null;
+        async function checkRoomExists() {
+            try {
+                const res = await fetch(`${base}/search/${slug}`);
+                const data = await res.json();
 
-        async function fetchRoom() {
-            const res = await fetch(`${base}/room/${slug}`);
-            const data = await res.json();
+                if (data.rooms.length === 0) {
+                    setRoomExists(false);
+                } else {
+                    setRoomExists(true);
+                }
+            } catch (e) {
+                setRoomExists(false);
+            }
+        }
 
-            if (!data.room) {
-                alert("Room not found");
+        checkRoomExists();
+    }, [slug]);
+
+    useEffect(() => {
+        if (roomExists === null) return;
+
+        if (roomExists === false) return;
+
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            router.replace(`/signin?redirect=/canvas/${slug}`);
+            return;
+        }
+
+        async function loadRoom() {
+            const res = await fetch(`${base}/room/${slug}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (res.status === 403) {
+                router.replace(`/signin?redirect=/canvas/${slug}`);
                 return;
             }
 
+            const data = await res.json();
             setRoomId(data.room.id);
 
-            ws = getSocket(slug);
-
+            const ws = getSocket(slug);
             ws.addEventListener("open", () => {
-                ws!.send(JSON.stringify({
+                ws.send(JSON.stringify({
                     type: "join_room",
                     roomId: data.room.id
                 }));
@@ -36,15 +68,48 @@ export function RoomCanvas({ slug }: { slug: string }) {
             setSocket(ws);
         }
 
-        fetchRoom();
+        loadRoom();
+    }, [roomExists]);
 
-        return () => {
-            if (ws) {
-                console.log("Closing websocket on unmount");
-                ws.close();
-            }
-        };
-    }, [slug]);
+    if (roomExists === false) {
+        return (
+            <div className="w-full h-screen flex flex-col items-center justify-center bg-black text-white px-4">
+
+                <div className="mb-6">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-20 h-20 text-red-500 drop-shadow-lg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 9v3m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L4.34 17c-.77 1.333.192 3 1.732 3z"
+                        />
+                    </svg>
+                </div>
+
+                <h1 className="text-3xl font-bold mb-2 tracking-wide">
+                    Room Not Found
+                </h1>
+
+                <p className="text-red-400 text-lg mb-6 opacity-80">
+                    The room “{slug}” doesn’t exist or was deleted.
+                </p>
+
+                <button
+                    onClick={() => router.push("/")}
+                    className="px-6 py-3 rounded-lg bg-white text-black font-medium border border-transparent hover:bg-black hover:border-white hover:text-white transition-all shadow-lg"
+                >
+                    Go Back to Home
+                </button>
+            </div>
+        );
+    }
+
 
     if (roomId === null || socket === null) {
         return (

@@ -66,7 +66,12 @@ export default function RoomsPage() {
 
     // Join room
     const joinRoom = async (slug: string) => {
-        const res = await axios.get(`${base}/room/${slug}`);
+        const res = await axios.get(`${base}/room/${slug}`, {
+            headers: {
+                Authorization: token ? `Bearer ${token}` : ""
+            }
+        });
+
         if (!res.data.room) return alert("Room not found");
 
         router.push(`/canvas/${slug}`);

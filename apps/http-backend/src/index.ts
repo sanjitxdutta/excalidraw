@@ -89,7 +89,7 @@ app.post("/room", middleware, async (req, res) => {
   }
 });
 
-app.get("/chats/:roomId", async (req, res) => {
+app.get("/chats/:roomId", middleware, async (req, res) => {
   const roomId = Number(req.params.roomId);
 
   try {
@@ -99,20 +99,27 @@ app.get("/chats/:roomId", async (req, res) => {
 
     res.json({ messages });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching messages", error });
+    res.status(500).json({ message: "Error fetching messages" });
   }
 });
 
-
-app.get("/room/:slug", async (req, res) => {
+app.get("/room/:slug", middleware, async (req, res) => {
   const slug = req.params.slug;
+
   const room = await prismaClient.room.findFirst({
-    where: { slug }
+    where: { slug },
+    include: {
+      admin: {
+        select: { id: true, name: true }
+      }
+    }
   });
 
-  res.json({
-    room
-  });
+  if (!room) {
+    return res.status(404).json({ message: "Room not found" });
+  }
+
+  res.json({ room });
 });
 
 app.listen(4000, () => {

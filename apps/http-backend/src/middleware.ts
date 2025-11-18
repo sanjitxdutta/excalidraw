@@ -9,7 +9,9 @@ export function middleware(req: Request, res: Response, next: NextFunction) {
         return res.status(403).json({ message: "No token provided" });
     }
 
-    const token = authHeader.replace("Bearer ", "");
+    const token = authHeader.startsWith("Bearer ")
+        ? authHeader.replace("Bearer ", "")
+        : authHeader;
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
