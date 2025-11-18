@@ -2,16 +2,63 @@ import useCanvasDraw from "@/app/draw/useCanvasDraw";
 import ShapeNavbar from "@/components/ShapeNavbar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import axios from "axios";
+
+const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 
 export function Canvas({ roomId, socket }: { roomId: number; socket: WebSocket }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [showInstructions, setShowInstructions] = useState(true);
 
-    const stored = typeof window !== "undefined"
-        ? sessionStorage.getItem("currentRoom")
-        : null;
+    const [roomInfo, setRoomInfo] = useState<{ slug: string; admin: string }>({
+        slug: "",
+        admin: "",
+    });
 
-    const roomInfo = stored ? JSON.parse(stored) : { slug: "", admin: "" };
+    const userId =
+        typeof window !== "undefined" ? localStorage.getItem("userId") : null;
+
+    useEffect(() => {
+        const stored = sessionStorage.getItem("currentRoom");
+        if (stored) {
+            setRoomInfo(JSON.parse(stored));
+            return;
+        }
+
+        const slugFromUrl = window.location.pathname.split("/").pop();
+        if (!slugFromUrl) return;
+
+        async function fetchRoomInfo() {
+            try {
+                const res = await axios.get(`${base}/search/${slugFromUrl}`);
+                const rooms = res.data.rooms || [];
+
+                if (rooms.length === 0) return;
+
+                const room = rooms[0];
+
+                const adminName = room.admin?.name || "Unknown";
+                const adminId = room.admin?.id;
+
+                const finalAdmin =
+                    adminId && userId && adminId.toString() === userId.toString()
+                        ? "You"
+                        : adminName;
+
+                const data = {
+                    slug: room.slug,
+                    admin: finalAdmin,
+                };
+
+                sessionStorage.setItem("currentRoom", JSON.stringify(data));
+                setRoomInfo(data);
+            } catch (error) {
+                console.error("Room fetch failed:", error);
+            }
+        }
+
+        fetchRoomInfo();
+    }, []);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -24,7 +71,6 @@ export function Canvas({ roomId, socket }: { roomId: number; socket: WebSocket }
 
         resizeCanvas();
         window.addEventListener("resize", resizeCanvas);
-
         return () => window.removeEventListener("resize", resizeCanvas);
     }, []);
 
@@ -33,25 +79,9 @@ export function Canvas({ roomId, socket }: { roomId: number; socket: WebSocket }
     return (
         <div className="relative w-screen h-screen overflow-hidden bg-black text-white">
 
-            <div
-                className="
-                    absolute top-4 left-4 right-4
-                    flex items-center justify-between
-                    z-50
-                    h-[52px]
-                "
-            >
-                <div
-                    className="
-                        bg-white text-black
-                        px-4
-                        rounded-lg
-                        border border-white
-                        flex flex-col justify-center
-                        h-full
-                        w-[130px]
-                    "
-                >
+            <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-50 h-[52px]">
+
+                <div className="bg-white text-black px-4 rounded-lg border border-white flex flex-col justify-center h-full w-[130px]">
                     <span className="text-[10px] text-gray-600 leading-none">Room</span>
                     <span className="text-sm font-semibold leading-tight">{roomInfo.slug}</span>
                     <span className="text-[10px] text-gray-600 leading-none">
@@ -63,8 +93,7 @@ export function Canvas({ roomId, socket }: { roomId: number; socket: WebSocket }
                     <div className="flex items-center h-full">
                         <ShapeNavbar onToolSelect={() => setShowInstructions(false)} />
                     </div>
-
-                    <div className="w-[60%] h-[2px] bg-white/80 rounded-full mt-1"></div>
+                    <div className="w-[60%] h-[2px] bg-white/50 rounded-full mt-1"></div>
                 </div>
 
                 <button
@@ -72,17 +101,7 @@ export function Canvas({ roomId, socket }: { roomId: number; socket: WebSocket }
                         if (socket) socket.close();
                         window.location.href = "/rooms";
                     }}
-                    className="
-                        bg-white text-black
-                        border border-white
-                        rounded-lg
-                        px-4
-                        flex items-center justify-center gap-2
-                        h-full
-                        shadow-sm
-                        hover:bg-black hover:text-white
-                        transition
-                    "
+                    className="bg-white text-black border border-white rounded-lg px-4 flex items-center justify-center h-full shadow-sm hover:bg-black hover:text-white transition"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -92,11 +111,7 @@ export function Canvas({ roomId, socket }: { roomId: number; socket: WebSocket }
                         stroke="currentColor"
                         strokeWidth="2"
                     >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h5m4 0h5a1 1 0 001-1V10"
-                        />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h5m4 0h5a1 1 0 001-1V10" />
                     </svg>
                 </button>
             </div>
@@ -118,8 +133,7 @@ export function Canvas({ roomId, socket }: { roomId: number; socket: WebSocket }
                     >
                         <h1 className="text-3xl font-bold mb-4">Welcome to DrawBoard 🎨</h1>
                         <p className="text-gray-300 max-w-md leading-relaxed text-sm">
-                            Use the toolbar above to select shapes or tools like pencil, text, or eraser.<br />
-                            Click and drag anywhere on the canvas to start drawing.<br />
+                            Use the toolbar above to select tools.<br />
                             Your creativity starts here — click a tool to begin!
                         </p>
                     </motion.div>
