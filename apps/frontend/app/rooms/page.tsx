@@ -9,7 +9,9 @@ const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 
 export default function RoomsPage() {
     const router = useRouter();
+
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const userId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
 
     const [rooms, setRooms] = useState([]);
     const [createSlug, setCreateSlug] = useState("");
@@ -35,7 +37,14 @@ export default function RoomsPage() {
             { headers: { Authorization: token } }
         );
 
-        router.push(`/canvas/${res.data.room.slug}`);
+        const slug = res.data.room.slug;
+
+        sessionStorage.setItem("currentRoom", JSON.stringify({
+            slug,
+            admin: "You"
+        }));
+
+        router.push(`/canvas/${slug}`);
     };
 
     // Search rooms
@@ -59,6 +68,7 @@ export default function RoomsPage() {
     const joinRoom = async (slug: string) => {
         const res = await axios.get(`${base}/room/${slug}`);
         if (!res.data.room) return alert("Room not found");
+
         router.push(`/canvas/${slug}`);
     };
 
@@ -80,6 +90,7 @@ export default function RoomsPage() {
                         title="Logout"
                         onClick={() => {
                             localStorage.removeItem("token");
+                            localStorage.removeItem("userId");
                             router.push("/");
                         }}
                     >
@@ -131,7 +142,7 @@ export default function RoomsPage() {
                         {searchResults.map((room: any) => (
                             <div
                                 key={room.id}
-                                className="flex justify-between items-center bg-whiet p-3 rounded-lg"
+                                className="flex justify-between items-center p-3 rounded-lg"
                             >
                                 <div>
                                     <p className="font-semibold">{room.slug}</p>
@@ -140,9 +151,29 @@ export default function RoomsPage() {
                                     </p>
                                 </div>
 
-                                <Button variant="dark" fullWidth={false} onClick={() => joinRoom(room.slug)}>
+                                <Button
+                                    variant="dark"
+                                    fullWidth={false}
+                                    onClick={() => {
+                                        const adminName = room.admin?.name || "Unknown";
+                                        const adminId = room.admin?.id;
+
+                                        const finalAdmin =
+                                            adminId && userId && adminId.toString() === userId.toString()
+                                                ? "You"
+                                                : adminName;
+
+                                        sessionStorage.setItem("currentRoom", JSON.stringify({
+                                            slug: room.slug,
+                                            admin: finalAdmin
+                                        }));
+
+                                        joinRoom(room.slug);
+                                    }}
+                                >
                                     Join
                                 </Button>
+
                             </div>
                         ))}
                     </div>
@@ -165,7 +196,14 @@ export default function RoomsPage() {
                         {rooms.map((room: any, index) => (
                             <div
                                 key={room.id}
-                                onClick={() => router.push(`/canvas/${room.slug}`)}
+                                onClick={() => {
+                                    sessionStorage.setItem("currentRoom", JSON.stringify({
+                                        slug: room.slug,
+                                        admin: "You"
+                                    }));
+
+                                    router.push(`/canvas/${room.slug}`);
+                                }}
                                 className="
                 group
                 flex items-center gap-4 

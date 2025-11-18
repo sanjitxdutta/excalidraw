@@ -8,9 +8,13 @@ export function RoomCanvas({ slug }: { slug: string }) {
     const [roomId, setRoomId] = useState<number | null>(null);
     const [socket, setSocket] = useState<WebSocket | null>(null);
 
+    const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000"
+
     useEffect(() => {
+        let ws: WebSocket | null = null;
+
         async function fetchRoom() {
-            const res = await fetch(`http://localhost:4000/room/${slug}`);
+            const res = await fetch(`${base}/room/${slug}`);
             const data = await res.json();
 
             if (!data.room) {
@@ -20,9 +24,10 @@ export function RoomCanvas({ slug }: { slug: string }) {
 
             setRoomId(data.room.id);
 
-            const ws = getSocket(slug);
+            ws = getSocket(slug);
+
             ws.addEventListener("open", () => {
-                ws.send(JSON.stringify({
+                ws!.send(JSON.stringify({
                     type: "join_room",
                     roomId: data.room.id
                 }));
@@ -32,11 +37,19 @@ export function RoomCanvas({ slug }: { slug: string }) {
         }
 
         fetchRoom();
+
+        return () => {
+            if (ws) {
+                console.log("Closing websocket on unmount");
+                ws.close();
+            }
+        };
     }, [slug]);
+
 
     if (roomId === null || socket === null) {
         return (
-            <div className="w-full h-[80vh] flex flex-col items-center justify-center bg-black text-white">
+            <div className="w-full min-h-screen flex flex-col items-center justify-center bg-black text-white">
                 <div className="relative w-16 h-16 mb-6">
                     <div className="absolute inset-0 rounded-full border-4 border-white/20"></div>
                     <div className="absolute inset-0 rounded-full border-4 border-white border-t-transparent animate-spin"></div>
