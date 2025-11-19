@@ -12,7 +12,10 @@ const app = express();
 app.use(express.json());
 
 app.use(cors({
-  origin: "https://drawboardx.vercel.app/",
+  origin: [
+    "http://localhost:3000",
+    "https://drawboardx.vercel.app"
+  ],
   credentials: true
 }));
 
