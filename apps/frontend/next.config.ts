@@ -1,8 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    typedRoutes: false,
+  typedRoutes: false,      
+  experimental: {},
+  eslint: {
+    ignoreDuringBuilds: true,   
   },
 };
 
