@@ -4,7 +4,7 @@ import { X, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { Button } from "../ui/button"
+import { Button } from "../ui/button";
 
 type AuthPageProps = {
     isSignin: boolean;
@@ -71,8 +71,14 @@ export function AuthPage({ isSignin }: AuthPageProps) {
     }
 
     return (
-        <div className="w-screen h-screen flex justify-center items-center bg-black">
-            <div className="p-6 bg-white rounded-lg shadow-xl w-96 relative">
+        <div className="w-screen h-screen flex justify-center items-center bg-black px-4">
+            <div
+                className="
+                    p-6 bg-white rounded-lg shadow-xl relative
+                    w-full max-w-sm         
+                    md:w-96 md:max-w-none    
+                "
+            >
 
                 <form
                     onSubmit={(e) => {
@@ -101,7 +107,10 @@ export function AuthPage({ isSignin }: AuthPageProps) {
                             placeholder="Name"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="block w-full mb-3 p-3 border border-black rounded text-black placeholder-gray-500"
+                            className="
+                                block w-full mb-3 p-3 border border-black rounded 
+                                text-black placeholder-gray-500
+                            "
                         />
                     )}
 
@@ -111,7 +120,10 @@ export function AuthPage({ isSignin }: AuthPageProps) {
                         placeholder="Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="block w-full mb-3 p-3 border border-black rounded text-black placeholder-gray-500"
+                        className="
+                            block w-full mb-3 p-3 border border-black rounded 
+                            text-black placeholder-gray-500
+                        "
                     />
 
                     {/* PASSWORD */}
@@ -121,7 +133,10 @@ export function AuthPage({ isSignin }: AuthPageProps) {
                             placeholder="Password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="block w-full p-3 border border-black rounded text-black placeholder-gray-500"
+                            className="
+                                block w-full p-3 border border-black rounded 
+                                text-black placeholder-gray-500
+                            "
                         />
                         <button
                             type="button"
@@ -139,7 +154,10 @@ export function AuthPage({ isSignin }: AuthPageProps) {
                                 placeholder="Confirm Password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                className="block w-full p-3 border border-black rounded text-black placeholder-gray-500"
+                                className="
+                                    block w-full p-3 border border-black rounded 
+                                    text-black placeholder-gray-500
+                                "
                             />
                             <button
                                 type="button"
