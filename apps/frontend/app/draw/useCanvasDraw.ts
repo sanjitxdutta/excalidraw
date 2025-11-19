@@ -203,6 +203,21 @@ export default function useCanvasDraw(
     redraw();
 
     // -----------------------
+    // FIX: Mobile canvas blank on text input (keyboard resize)
+    // -----------------------
+
+    const resizeFix = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
+
+      redraw();
+    };
+    window.addEventListener("resize", resizeFix);
+
+    // -----------------------
     // STATE VARS
     // -----------------------
 
@@ -519,6 +534,8 @@ export default function useCanvasDraw(
       canvas.removeEventListener("touchstart", onTouchStart);
       canvas.removeEventListener("touchmove", onTouchMove);
       canvas.removeEventListener("touchend", onTouchEnd);
+
+      window.removeEventListener("resize", resizeFix);
     };
   }, [canvasRef, existingShapes, activeTool]);
 
