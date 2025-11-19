@@ -108,6 +108,47 @@ app.get("/chats/:roomId", middleware, async (req, res) => {
   }
 });
 
+app.delete("/room/:roomId", middleware, async (req, res) => {
+  const roomId = Number(req.params.roomId);
+
+  if (isNaN(roomId)) {
+    return res.status(400).json({ message: "Invalid room ID" });
+  }
+
+  // @ts-ignore
+  const userId = req.userId;
+
+  try {
+    const room = await prismaClient.room.findUnique({
+      where: { id: roomId },
+      select: { adminId: true }
+    });
+
+    if (!room) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+
+    if (room.adminId !== userId) {
+      return res.status(403).json({ message: "You are not the admin of this room" });
+    }
+
+    await prismaClient.room.delete({
+      where: { id: roomId }
+    });
+
+    res.json({
+      message: "Room and all related chats deleted successfully"
+    });
+
+  } catch (error) {
+    console.error("Delete error:", error);
+    res.status(500).json({
+      message: "Something went wrong while deleting the room",
+      error
+    });
+  }
+});
+
 app.get("/room/:slug", middleware, async (req, res) => {
   const slug = req.params.slug;
 
