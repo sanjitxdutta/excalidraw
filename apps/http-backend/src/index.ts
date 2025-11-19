@@ -6,6 +6,8 @@ import { prismaClient } from "@repo/db/client";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "@repo/backend-common/config";
 
+const PORT = process.env.PORT || 3000;
+
 const app = express();
 app.use(express.json());
 
@@ -122,10 +124,6 @@ app.get("/room/:slug", middleware, async (req, res) => {
   res.json({ room });
 });
 
-app.listen(4000, () => {
-  console.log("Server running on http://localhost:4000");
-});
-
 app.get("/myrooms", middleware, async (req, res) => {
   //@ts-ignore
   const userId = req.userId;
@@ -164,3 +162,5 @@ app.get("/search/:query", async (req, res) => {
     res.status(500).json({ message: "Error searching rooms", error });
   }
 });
+
+app.listen(PORT, () => console.log("HTTP backend running on port " + PORT));
