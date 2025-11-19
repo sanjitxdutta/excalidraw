@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { Button } from "../../ui/button"
+import { Button } from "../../ui/button";
 
 const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 
@@ -47,7 +47,7 @@ export default function RoomsPage() {
         router.push(`/canvas/${slug}`);
     };
 
-    // Search rooms
+    // Search Room
     const searchRoom = async (value: string) => {
         setSearchSlug(value);
 
@@ -64,7 +64,7 @@ export default function RoomsPage() {
         }
     };
 
-    // Join room
+    // Join Room
     const joinRoom = async (slug: string) => {
         const res = await axios.get(`${base}/room/${slug}`, {
             headers: {
@@ -78,13 +78,23 @@ export default function RoomsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-black text-white flex">
+        <div className="
+            min-h-screen bg-black text-white flex
+            flex-col md:flex-row     
+        ">
 
-            <aside className="w-80 min-h-screen bg-black border-r border-gray-800 flex flex-col gap-8 p-6">
+            {/* SIDEBAR */}
+            <aside className="
+                w-full md:w-80 
+                min-h-fit md:min-h-screen 
+                bg-black border-b md:border-b-0 md:border-r border-gray-800 
+                flex flex-col gap-8 p-6
+            ">
 
+                {/* Title + Logout */}
                 <div className="flex items-center justify-between">
                     <h1
-                        className="text-3xl font-bold tracking-tight cursor-pointer transition"
+                        className="text-3xl font-bold tracking-tight cursor-pointer"
                         onClick={() => router.push("/")}
                     >
                         DrawBoard
@@ -116,6 +126,7 @@ export default function RoomsPage() {
                     </button>
                 </div>
 
+                {/* CREATE ROOM */}
                 <div className="bg-white text-black p-6 rounded-xl shadow-lg">
                     <h2 className="text-xl font-semibold mb-4">Create Room</h2>
 
@@ -129,6 +140,7 @@ export default function RoomsPage() {
                     <Button variant="dark" onClick={createRoom}>Create</Button>
                 </div>
 
+                {/* JOIN ROOM */}
                 <div className="bg-white text-black p-6 rounded-xl shadow-lg">
                     <h2 className="text-xl font-semibold mb-4">Join Room</h2>
 
@@ -139,7 +151,11 @@ export default function RoomsPage() {
                         onChange={(e) => searchRoom(e.target.value)}
                     />
 
-                    <div className="max-h-52 overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-2">
+                    <div className="
+                        max-h-52 overflow-y-auto 
+                        border border-gray-200 rounded-lg 
+                        p-2 space-y-2
+                    ">
                         {searchResults.length === 0 && searchSlug && (
                             <p className="text-gray-500 text-sm p-2">No rooms found.</p>
                         )}
@@ -178,20 +194,30 @@ export default function RoomsPage() {
                                 >
                                     Join
                                 </Button>
-
                             </div>
                         ))}
                     </div>
                 </div>
             </aside>
 
-            <main className="flex-1 p-6 pr-10">
-                <div className="bg-white text-black rounded-2xl shadow-xl w-full h-full p-8 border border-gray-200 flex flex-col">
+            {/* MAIN */}
+            <main className="flex-1 p-4 md:p-6 md:pr-10">
+                <div className="
+                    bg-white text-black rounded-2xl shadow-xl 
+                    w-full h-full p-6 md:p-8 
+                    border border-gray-200 flex flex-col
+                ">
 
-                    <h1 className="text-4xl font-bold text-center mb-8">Your Rooms</h1>
+                    <h1 className="text-3xl md:text-4xl font-bold text-center mb-6 md:mb-8">
+                        Your Rooms
+                    </h1>
 
-                    <div className="flex-1 overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-3 max-h-[400px]">
-
+                    <div className="
+                        flex-1 overflow-y-auto 
+                        border border-gray-200 rounded-lg 
+                        p-2 space-y-3 
+                        max-h-[350px] md:max-h-[400px]
+                    ">
                         {rooms.length === 0 && (
                             <p className="text-gray-500 text-center p-4">
                                 You haven't created any rooms yet.
@@ -210,32 +236,38 @@ export default function RoomsPage() {
                                     router.push(`/canvas/${room.slug}`);
                                 }}
                                 className="
-                group
-                flex items-center gap-4 
-                bg-white text-black 
-                border border-black
-                p-5 rounded-xl w-full cursor-pointer
-                transition-all duration-300 ease-in-out
-                hover:bg-black hover:text-white hover:border-white"
+                                    group flex items-center gap-4 
+                                    bg-white text-black 
+                                    border border-black
+                                    p-4 md:p-5 rounded-xl w-full cursor-pointer
+                                    transition-all duration-300 ease-in-out
+                                    hover:bg-black hover:text-white hover:border-white
+                                "
                             >
                                 <div
                                     className="
-                    px-4 py-1 
-                    bg-black text-white 
-                    rounded-lg text-sm font-semibold shadow-sm
-                    transition-all duration-300
-                    group-hover:bg-white group-hover:text-black"
+                                        px-4 py-1 bg-black text-white 
+                                        rounded-lg text-sm font-semibold shadow-sm
+                                        transition-all duration-300
+                                        group-hover:bg-white group-hover:text-black
+                                    "
                                 >
                                     {index + 1}
                                 </div>
 
-                                <div className="text-xl font-semibold">{room.slug}</div>
+                                <div className="text-lg md:text-xl font-semibold">
+                                    {room.slug}
+                                </div>
                             </div>
                         ))}
-
                     </div>
 
-                    <div className="mt-auto pt-6 border-t border-gray-300 text-center text-gray-500 text-xs select-none">
+                    <div className="
+                        mt-auto pt-6 
+                        border-t border-gray-300 
+                        text-center text-gray-500 
+                        text-xs select-none
+                    ">
                         DrawBoard • v1.0.0 • sanjitxdutta © 2025
                     </div>
 
