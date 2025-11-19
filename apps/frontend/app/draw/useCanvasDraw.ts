@@ -1,49 +1,31 @@
 import axios from "axios";
 import { useEffect, RefObject, useState } from "react";
 
+// ------------------------------------------------------------
+// SHAPE TYPES
+// ------------------------------------------------------------
+
 type Shape =
-  | {
-    type: "rect";
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  }
-  | {
-    type: "ellipse";
-    centerX: number;
-    centerY: number;
-    radiusX: number;
-    radiusY: number;
-  }
-  | {
-    type: "triangle";
-    x1: number;
-    y1: number;
-    x2: number;
-    y2: number;
-    x3: number;
-    y3: number;
-  }
-  | {
-    type: "arrow";
-    startX: number;
-    startY: number;
-    endX: number;
-    endY: number;
-  }
-  | {
-    type: "pencil";
-    points: { x: number; y: number }[];
-  }
-  | {
-    type: "text";
-    text: string;
-    x: number;
-    y: number;
-  };
+  | { type: "rect"; x: number; y: number; width: number; height: number }
+  | { type: "ellipse"; centerX: number; centerY: number; radiusX: number; radiusY: number }
+  | { type: "triangle"; x1: number; y1: number; x2: number; y2: number; x3: number; y3: number }
+  | { type: "arrow"; startX: number; startY: number; endX: number; endY: number }
+  | { type: "pencil"; points: { x: number; y: number }[] }
+  | { type: "text"; text: string; x: number; y: number };
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+
+function getCanvasCoords(canvas: HTMLCanvasElement, clientX: number, clientY: number) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: clientX - rect.left,
+    y: clientY - rect.top,
+  };
+}
+
+// ------------------------------------------------------------
+// MAIN HOOK
+// ------------------------------------------------------------
 
 export default function useCanvasDraw(
   canvasRef: RefObject<HTMLCanvasElement | null>,
@@ -53,7 +35,9 @@ export default function useCanvasDraw(
 ) {
   const [existingShapes, setExistingShapes] = useState<Shape[]>([]);
 
-  // WS LISTENER
+  // ------------------------------------------------------------
+  // WEBSOCKET LISTENER (real-time sync)
+  // ------------------------------------------------------------
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -76,7 +60,9 @@ export default function useCanvasDraw(
     return () => socket.removeEventListener("message", handleMessage);
   }, [socket]);
 
-  // LOAD DB SHAPES
+  // ------------------------------------------------------------
+  // LOAD SAVED SHAPES FROM DB
+  // ------------------------------------------------------------
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -93,15 +79,11 @@ export default function useCanvasDraw(
       });
   }, [roomId]);
 
-  // ARROW HEAD
+  // ------------------------------------------------------------
+  // ARROW HEAD DRAW
+  // ------------------------------------------------------------
 
-  function drawArrowhead(
-    ctx: CanvasRenderingContext2D,
-    x0: number,
-    y0: number,
-    x1: number,
-    y1: number
-  ) {
+  function drawArrowhead(ctx: CanvasRenderingContext2D, x0: number, y0: number, x1: number, y1: number) {
     const angle = Math.atan2(y1 - y0, x1 - x0);
     const size = 12;
 
@@ -119,16 +101,11 @@ export default function useCanvasDraw(
     ctx.fill();
   }
 
-  // MATH: DISTANCE FROM POINT TO LINE (Fix for arrow eraser)
+  // ------------------------------------------------------------
+  // POINT-TO-LINE DISTANCE (eraser logic)
+  // ------------------------------------------------------------
 
-  function pointToLineDistance(
-    px: number,
-    py: number,
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number
-  ): number {
+  function pointToLineDistance(px: number, py: number, x1: number, y1: number, x2: number, y2: number) {
     const A = px - x1;
     const B = py - y1;
     const C = x2 - x1;
@@ -154,7 +131,9 @@ export default function useCanvasDraw(
     return Math.hypot(px - xx, py - yy);
   }
 
-  // FULL DRAW LOGIC
+  // ------------------------------------------------------------
+  // FULL DRAW LOGIC + INPUT HANDLERS
+  // ------------------------------------------------------------
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -163,8 +142,12 @@ export default function useCanvasDraw(
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    // -----------------------
+    // REDRAW EVERYTHING
+    // -----------------------
     const redraw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
       ctx.fillStyle = "black";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -179,15 +162,7 @@ export default function useCanvasDraw(
 
           case "ellipse":
             ctx.beginPath();
-            ctx.ellipse(
-              shape.centerX,
-              shape.centerY,
-              shape.radiusX,
-              shape.radiusY,
-              0,
-              0,
-              Math.PI * 2
-            );
+            ctx.ellipse(shape.centerX, shape.centerY, shape.radiusX, shape.radiusY, 0, 0, Math.PI * 2);
             ctx.stroke();
             break;
 
@@ -227,11 +202,19 @@ export default function useCanvasDraw(
 
     redraw();
 
+    // -----------------------
+    // STATE VARS
+    // -----------------------
+
     let drawing = false;
     let erasing = false;
     let startX = 0;
     let startY = 0;
     let pencilPoints: { x: number; y: number }[] = [];
+
+    // -----------------------
+    // SEND SHAPE TO SERVER
+    // -----------------------
 
     const sendShape = (shape: Shape) => {
       setExistingShapes((prev) => [...prev, shape]);
@@ -247,7 +230,9 @@ export default function useCanvasDraw(
       }
     };
 
-    // MULTI-SHAPE ERASER (NOW WITH ARROW FIX)
+    // -----------------------
+    // ERASER LOGIC
+    // -----------------------
 
     const tryErase = (x: number, y: number) => {
       const threshold = 6;
@@ -268,6 +253,7 @@ export default function useCanvasDraw(
               pointToLineDistance(x, y, x2, y1, x2, y2) < threshold ||
               pointToLineDistance(x, y, x2, y2, x1, y2) < threshold ||
               pointToLineDistance(x, y, x1, y2, x1, y1) < threshold;
+
             break;
           }
 
@@ -282,25 +268,17 @@ export default function useCanvasDraw(
 
           case "triangle":
             hit =
-              pointToLineDistance(x, y, shape.x1, shape.y1, shape.x2, shape.y2) <
-              threshold ||
-              pointToLineDistance(x, y, shape.x2, shape.y2, shape.x3, shape.y3) <
-              threshold ||
-              pointToLineDistance(x, y, shape.x3, shape.y3, shape.x1, shape.y1) <
-              threshold;
+              pointToLineDistance(x, y, shape.x1, shape.y1, shape.x2, shape.y2) < threshold ||
+              pointToLineDistance(x, y, shape.x2, shape.y2, shape.x3, shape.y3) < threshold ||
+              pointToLineDistance(x, y, shape.x3, shape.y3, shape.x1, shape.y1) < threshold;
             break;
 
           case "arrow":
             hit =
-              pointToLineDistance(
-                x,
-                y,
-                shape.startX,
-                shape.startY,
-                shape.endX,
-                shape.endY
-              ) < threshold ||
+              pointToLineDistance(x, y, shape.startX, shape.startY, shape.endX, shape.endY) <
+              threshold ||
               Math.hypot(x - shape.endX, y - shape.endY) < threshold;
+
             break;
 
           case "pencil":
@@ -308,9 +286,7 @@ export default function useCanvasDraw(
             break;
 
           case "text":
-            hit =
-              Math.abs(y - shape.y) < threshold &&
-              Math.abs(x - shape.x) < 40;
+            hit = Math.abs(x - shape.x) < 40 && Math.abs(y - shape.y) < threshold;
             break;
         }
 
@@ -319,9 +295,7 @@ export default function useCanvasDraw(
 
       if (shapesToDelete.length === 0) return;
 
-      setExistingShapes((prev) =>
-        prev.filter((shape) => !shapesToDelete.includes(shape))
-      );
+      setExistingShapes((prev) => prev.filter((s) => !shapesToDelete.includes(s)));
 
       shapesToDelete.forEach((shape) => {
         socket.send(
@@ -334,37 +308,40 @@ export default function useCanvasDraw(
       });
     };
 
-    // MOUSE EVENTS
+    // ------------------------------------------------------------
+    // HANDLERS — FIXED WITH CANVAS-RELATIVE COORDINATES
+    // ------------------------------------------------------------
 
-    const handleMouseDown = (e: MouseEvent) => {
+    const handleStart = (clientX: number, clientY: number) => {
+      const { x, y } = getCanvasCoords(canvas, clientX, clientY);
+
       drawing = true;
-      startX = e.clientX;
-      startY = e.clientY;
+      startX = x;
+      startY = y;
 
       if (activeTool === "Eraser") {
         erasing = true;
-        tryErase(startX, startY);
+        tryErase(x, y);
         return;
       }
 
       if (activeTool === "Pencil") {
-        pencilPoints = [{ x: startX, y: startY }];
+        pencilPoints = [{ x, y }];
       }
 
       if (activeTool === "Text") {
         const text = prompt("Enter text:");
         if (!text) return;
 
-        sendShape({ type: "text", text, x: startX, y: startY });
+        sendShape({ type: "text", text, x, y });
         redraw();
       }
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMove = (clientX: number, clientY: number) => {
       if (!drawing) return;
 
-      const currX = e.clientX;
-      const currY = e.clientY;
+      const { x: currX, y: currY } = getCanvasCoords(canvas, clientX, clientY);
 
       if (activeTool === "Eraser" && erasing) {
         tryErase(currX, currY);
@@ -378,8 +355,8 @@ export default function useCanvasDraw(
           ctx.strokeRect(startX, startY, currX - startX, currY - startY);
           break;
 
-        case "Circle":
-        case "Ellipse": {
+        case "Ellipse":
+        case "Circle": {
           const rx = Math.abs(currX - startX) / 2;
           const ry = Math.abs(currY - startY) / 2;
           const cx = startX + (currX - startX) / 2;
@@ -420,12 +397,12 @@ export default function useCanvasDraw(
       }
     };
 
-    const handleMouseUp = (e: MouseEvent) => {
+    const handleEnd = (clientX: number, clientY: number) => {
+      if (!drawing) return;
       drawing = false;
       erasing = false;
 
-      const currX = e.clientX;
-      const currY = e.clientY;
+      const { x: currX, y: currY } = getCanvasCoords(canvas, clientX, clientY);
 
       let shape: Shape | null = null;
 
@@ -440,10 +417,11 @@ export default function useCanvasDraw(
           };
           break;
 
-        case "Circle":
-        case "Ellipse": {
+        case "Ellipse":
+        case "Circle": {
           const rx = Math.abs(currX - startX) / 2;
           const ry = Math.abs(currY - startY) / 2;
+
           shape = {
             type: "ellipse",
             centerX: startX + (currX - startX) / 2,
@@ -487,43 +465,62 @@ export default function useCanvasDraw(
       if (shape) sendShape(shape);
     };
 
-    function getTouchPos(t: Touch) {
-      return { x: t.clientX, y: t.clientY };
-    }
+    // ------------------------------------------------------------
+    // MOUSE → unified handlers
+    // ------------------------------------------------------------
 
-    const handleTouchStart = (e: TouchEvent) => {
+    const onMouseDown = (e: MouseEvent) => handleStart(e.clientX, e.clientY);
+    const onMouseMove = (e: MouseEvent) => handleMove(e.clientX, e.clientY);
+    const onMouseUp = (e: MouseEvent) => handleEnd(e.clientX, e.clientY);
+
+    // ------------------------------------------------------------
+    // TOUCH → unified handlers
+    // ------------------------------------------------------------
+
+    const onTouchStart = (e: TouchEvent) => {
       e.preventDefault();
-      const { x, y } = getTouchPos(e.touches[0]);
-      handleMouseDown({ clientX: x, clientY: y } as MouseEvent);
+      const t = e.touches[0];
+      handleStart(t.clientX, t.clientY);
     };
 
-    const handleTouchMove = (e: TouchEvent) => {
+    const onTouchMove = (e: TouchEvent) => {
       e.preventDefault();
-      const { x, y } = getTouchPos(e.touches[0]);
-      handleMouseMove({ clientX: x, clientY: y } as MouseEvent);
+      const t = e.touches[0];
+      handleMove(t.clientX, t.clientY);
     };
 
-    const handleTouchEnd = (e: TouchEvent) => {
+    const onTouchEnd = (e: TouchEvent) => {
       e.preventDefault();
-      handleMouseUp({ clientX: 0, clientY: 0 } as MouseEvent);
+      const t = e.changedTouches[0] || { clientX: startX, clientY: startY };
+      handleEnd(t.clientX, t.clientY);
     };
 
-    canvas.addEventListener("mousedown", handleMouseDown);
-    canvas.addEventListener("mousemove", handleMouseMove);
-    canvas.addEventListener("mouseup", handleMouseUp);
+    // ------------------------------------------------------------
+    // EVENT LISTENERS
+    // ------------------------------------------------------------
 
-    canvas.addEventListener("touchstart", handleTouchStart, { passive: false });
-    canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
-    canvas.addEventListener("touchend", handleTouchEnd, { passive: false });
+    canvas.addEventListener("mousedown", onMouseDown);
+    canvas.addEventListener("mousemove", onMouseMove);
+    canvas.addEventListener("mouseup", onMouseUp);
+
+    canvas.addEventListener("touchstart", onTouchStart, { passive: false });
+    canvas.addEventListener("touchmove", onTouchMove, { passive: false });
+    canvas.addEventListener("touchend", onTouchEnd, { passive: false });
+
+    // ------------------------------------------------------------
+    // CLEANUP
+    // ------------------------------------------------------------
 
     return () => {
-      canvas.removeEventListener("mousedown", handleMouseDown);
-      canvas.removeEventListener("mousemove", handleMouseMove);
-      canvas.removeEventListener("mouseup", handleMouseUp);
+      canvas.removeEventListener("mousedown", onMouseDown);
+      canvas.removeEventListener("mousemove", onMouseMove);
+      canvas.removeEventListener("mouseup", onMouseUp);
 
-      canvas.removeEventListener("touchstart", handleTouchStart);
-      canvas.removeEventListener("touchmove", handleTouchMove);
-      canvas.removeEventListener("touchend", handleTouchEnd);
+      canvas.removeEventListener("touchstart", onTouchStart);
+      canvas.removeEventListener("touchmove", onTouchMove);
+      canvas.removeEventListener("touchend", onTouchEnd);
     };
   }, [canvasRef, existingShapes, activeTool]);
+
+  return null;
 }
