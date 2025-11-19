@@ -73,12 +73,12 @@ export function RoomCanvas({ slug }: { slug: string }) {
 
     if (roomExists === false) {
         return (
-            <div className="w-full h-screen flex flex-col items-center justify-center bg-black text-white px-4">
+            <div className="w-full h-screen flex flex-col items-center justify-center bg-black text-white px-4 text-center">
 
                 <div className="mb-6">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="w-20 h-20 text-red-500 drop-shadow-lg"
+                        className="w-16 h-16 md:w-20 md:h-20 text-red-500 drop-shadow-lg"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -92,17 +92,17 @@ export function RoomCanvas({ slug }: { slug: string }) {
                     </svg>
                 </div>
 
-                <h1 className="text-3xl font-bold mb-2 tracking-wide">
+                <h1 className="text-2xl md:text-3xl font-bold mb-2 tracking-wide">
                     Room Not Found
                 </h1>
 
-                <p className="text-red-400 text-lg mb-6 opacity-80">
+                <p className="text-red-400 text-base md:text-lg mb-6 opacity-80 max-w-xs md:max-w-md">
                     The room “{slug}” doesn’t exist or was deleted.
                 </p>
 
                 <button
                     onClick={() => router.push("/")}
-                    className="px-6 py-3 rounded-lg bg-white text-black font-medium border border-transparent hover:bg-black hover:border-white hover:text-white transition-all shadow-lg"
+                    className="px-5 py-3 md:px-6 md:py-3 rounded-lg bg-white text-black font-medium border border-transparent hover:bg-black hover:border-white hover:text-white transition-all shadow-lg"
                 >
                     Go Back to Home
                 </button>
@@ -110,20 +110,20 @@ export function RoomCanvas({ slug }: { slug: string }) {
         );
     }
 
-
     if (roomId === null || socket === null) {
         return (
-            <div className="w-full min-h-screen flex flex-col items-center justify-center bg-black text-white">
-                <div className="relative w-16 h-16 mb-6">
+            <div className="w-full min-h-screen flex flex-col items-center justify-center bg-black text-white px-4 text-center">
+
+                <div className="relative w-14 h-14 md:w-16 md:h-16 mb-6">
                     <div className="absolute inset-0 rounded-full border-4 border-white/20"></div>
                     <div className="absolute inset-0 rounded-full border-4 border-white border-t-transparent animate-spin"></div>
                 </div>
 
-                <h2 className="text-3xl font-bold tracking-wide">
+                <h2 className="text-2xl md:text-3xl font-bold tracking-wide">
                     Connecting to Server…
                 </h2>
 
-                <p className="text-white/60 mt-2 text-lg">
+                <p className="text-white/60 mt-2 text-sm md:text-lg max-w-xs md:max-w-md">
                     Setting up your real-time workspace
                 </p>
             </div>

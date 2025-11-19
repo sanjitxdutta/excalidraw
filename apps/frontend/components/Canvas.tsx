@@ -90,16 +90,6 @@ export function Canvas({ roomId, socket }: { roomId: number; socket: WebSocket }
                     </span>
                 </div>
 
-                <div className="flex flex-col items-center justify-center h-full">
-                    <div className="flex items-center h-full">
-                        <ShapeNavbar onToolSelect={(tool) => {
-                            setActiveTool(tool);
-                            setShowInstructions(false);
-                        }} />
-                    </div>
-                    <div className="w-[60%] h-[2px] bg-white/50 rounded-full mt-1"></div>
-                </div>
-
                 <button
                     onClick={() => {
                         if (socket) socket.close();
@@ -126,6 +116,13 @@ export function Canvas({ roomId, socket }: { roomId: number; socket: WebSocket }
                 style={{ backgroundColor: "black", cursor: "crosshair" }}
             />
 
+            <ShapeNavbar
+                onToolSelect={(tool) => {
+                    setActiveTool(tool);
+                    setShowInstructions(false);
+                }}
+            />
+
             <AnimatePresence>
                 {showInstructions && (
                     <motion.div
@@ -133,20 +130,28 @@ export function Canvas({ roomId, socket }: { roomId: number; socket: WebSocket }
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.5 }}
-                        className="absolute inset-0 flex flex-col items-center justify-center text-center bg-black/70 backdrop-blur-sm z-40"
+                        className="
+        absolute inset-0 
+        flex flex-col items-center justify-center text-center 
+        bg-black/70 backdrop-blur-sm 
+        z-40 px-4
+    "
                     >
-                        <h1 className="text-3xl font-bold mb-4">Welcome to DrawBoard 🎨</h1>
-                        <p className="text-gray-300 max-w-md leading-relaxed text-sm">
-                            Use the toolbar above to select tools.<br />
+                        <h1 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4">
+                            Welcome to DrawBoard 🎨
+                        </h1>
+
+                        <p className="text-gray-300 leading-relaxed 
+        text-sm md:text-base 
+        max-w-xs md:max-w-md
+    ">
+                            Use the toolbar above to select tools.<br className="hidden sm:block" />
                             Your creativity starts here — click a tool to begin!
                         </p>
                     </motion.div>
+
                 )}
             </AnimatePresence>
-
-            <div className="absolute bottom-2 w-full text-center text-gray-400 text-xs select-none pointer-events-none z-50">
-                DrawBoard • v1.0.0 • sanjitxdutta © 2025
-            </div>
         </div>
     );
 }
