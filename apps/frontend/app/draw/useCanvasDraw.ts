@@ -257,7 +257,6 @@ export default function useCanvasDraw(
         let hit = false;
 
         switch (shape.type) {
-
           case "rect": {
             const x1 = shape.x;
             const y1 = shape.y;
@@ -283,14 +282,24 @@ export default function useCanvasDraw(
 
           case "triangle":
             hit =
-              pointToLineDistance(x, y, shape.x1, shape.y1, shape.x2, shape.y2) < threshold ||
-              pointToLineDistance(x, y, shape.x2, shape.y2, shape.x3, shape.y3) < threshold ||
-              pointToLineDistance(x, y, shape.x3, shape.y3, shape.x1, shape.y1) < threshold;
+              pointToLineDistance(x, y, shape.x1, shape.y1, shape.x2, shape.y2) <
+              threshold ||
+              pointToLineDistance(x, y, shape.x2, shape.y2, shape.x3, shape.y3) <
+              threshold ||
+              pointToLineDistance(x, y, shape.x3, shape.y3, shape.x1, shape.y1) <
+              threshold;
             break;
 
           case "arrow":
             hit =
-              pointToLineDistance(x, y, shape.startX, shape.startY, shape.endX, shape.endY) < threshold ||
+              pointToLineDistance(
+                x,
+                y,
+                shape.startX,
+                shape.startY,
+                shape.endX,
+                shape.endY
+              ) < threshold ||
               Math.hypot(x - shape.endX, y - shape.endY) < threshold;
             break;
 
@@ -478,16 +487,43 @@ export default function useCanvasDraw(
       if (shape) sendShape(shape);
     };
 
-    // EVENT BINDING
+    function getTouchPos(t: Touch) {
+      return { x: t.clientX, y: t.clientY };
+    }
+
+    const handleTouchStart = (e: TouchEvent) => {
+      e.preventDefault();
+      const { x, y } = getTouchPos(e.touches[0]);
+      handleMouseDown({ clientX: x, clientY: y } as MouseEvent);
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      const { x, y } = getTouchPos(e.touches[0]);
+      handleMouseMove({ clientX: x, clientY: y } as MouseEvent);
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      e.preventDefault();
+      handleMouseUp({ clientX: 0, clientY: 0 } as MouseEvent);
+    };
 
     canvas.addEventListener("mousedown", handleMouseDown);
     canvas.addEventListener("mousemove", handleMouseMove);
     canvas.addEventListener("mouseup", handleMouseUp);
 
+    canvas.addEventListener("touchstart", handleTouchStart, { passive: false });
+    canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
+    canvas.addEventListener("touchend", handleTouchEnd, { passive: false });
+
     return () => {
       canvas.removeEventListener("mousedown", handleMouseDown);
       canvas.removeEventListener("mousemove", handleMouseMove);
       canvas.removeEventListener("mouseup", handleMouseUp);
+
+      canvas.removeEventListener("touchstart", handleTouchStart);
+      canvas.removeEventListener("touchmove", handleTouchMove);
+      canvas.removeEventListener("touchend", handleTouchEnd);
     };
   }, [canvasRef, existingShapes, activeTool]);
 }
