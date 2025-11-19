@@ -2,7 +2,16 @@
   🎨 DrawBoard – Real-Time Collaborative Canvas
 </h1>
 
-<img width="1900" height="718" alt="Screenshot 2025-11-19 161108" src="https://github.com/user-attachments/assets/4dbcf7bd-9916-4eed-97d2-2c9155dd01d4" />
+<p align="center">
+  <a href="https://drawboardx.vercel.app/" target="_blank">
+    <img 
+      width="1900"
+      height="718"
+      alt="DrawBoard Screenshot"
+      src="https://github.com/user-attachments/assets/4dbcf7bd-9916-4eed-97d2-2c9155dd01d4"
+    />
+  </a>
+</p>
 
 A full-stack monorepo for real-time collaborative drawing, chat, and room management.  
 Built using **Next.js**, **Express**, **WebSockets**, **Prisma**, **TypeScript**, and **PNPM Workspaces**.
