@@ -9,5 +9,5 @@ export default function CanvasPage({ params }: {
 
   const { slug } = params;
 
-  return <RoomCanvas slug={slug} />
+  return <RoomCanvas slug={params.slug} />;
 }
