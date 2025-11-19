@@ -1,0 +1,5 @@
+{
+  "buildCommand": "pnpm --filter \"apps/frontend\" build",
+  "installCommand": "pnpm install --shamefully-hoist --no-optional",
+  "outputDirectory": ".next"
+}
