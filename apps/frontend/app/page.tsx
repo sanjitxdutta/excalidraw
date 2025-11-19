@@ -46,34 +46,21 @@ export default function LandingPage() {
       </nav>
 
       {/* HERO */}
-      <header className="py-12 md:py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-
-          <h1 className="
-            text-3xl leading-tight font-extrabold mb-4
-            md:text-6xl md:mb-6
-          ">
-            A Simple, Collaborative Whiteboard
-            <br className="hidden md:block" />
-            for Your Ideas
+      <header className="py-20">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h1 className="text-5xl md:text-6xl font-extrabold leading-tight mb-6">
+            A Simple, Collaborative Whiteboard for Your Ideas
           </h1>
-
-          <p className="
-            text-base text-gray-300 mb-6
-            md:text-lg md:mb-8
-          ">
+          <p className="text-lg text-gray-300 mb-8">
             Sketch, brainstorm, and collaborate with your team in real-time — right from your browser.
           </p>
-
           <div className="max-w-xs mx-auto">
             <Button variant="light" onClick={handleGetStarted}>
               Start Drawing
             </Button>
           </div>
-
         </div>
       </header>
-
 
       {/* FEATURES */}
       <section id="features" className="

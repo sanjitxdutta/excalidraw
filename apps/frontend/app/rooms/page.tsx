@@ -92,14 +92,32 @@ export default function RoomsPage() {
             ">
                 <div className="flex items-center justify-between">
                     <h1
-                        className="text-3xl font-bold tracking-tight cursor-pointer"
+                        className="
+            font-bold tracking-tight cursor-pointer
+            flex items-center
+            text-2xl             
+            md:text-3xl           
+            leading-none          
+            select-none
+        "
                         onClick={() => router.push("/")}
                     >
                         DrawBoard
                     </h1>
 
                     <button
-                        className="bg-white text-black border border-white rounded-lg px-4 flex items-center justify-center h-full shadow-sm hover:bg-black hover:text-white transition"
+                        className="
+            bg-white text-black border border-white
+            rounded-xl shadow-sm
+            flex items-center justify-center
+            transition-all duration-200 ease-out
+            h-[2rem] w-[2rem]             
+            md:h-[2.5rem] md:w-[2.5rem]    
+            hover:bg-black hover:text-white
+            hover:shadow-[0_0_8px_rgba(255,255,255,0.35)]
+            md:hover:scale-[1.04]
+            active:scale-[0.97]
+        "
                         title="Logout"
                         onClick={() => {
                             localStorage.removeItem("token");
@@ -109,7 +127,12 @@ export default function RoomsPage() {
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            className="w-5 h-5"
+                            className="
+                w-4 h-4
+                md:w-5 md:h-5
+                transition-transform duration-200
+                group-hover:rotate-[-3deg]
+            "
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -235,7 +258,6 @@ export default function RoomsPage() {
                                         : "bg-white text-black border-black hover:bg-black hover:text-white hover:border-white"}
         `}
                             >
-                                {/* LEFT SIDE */}
                                 <div
                                     className={`flex items-center gap-4 flex-1 
                 ${room._deleted ? "justify-center cursor-default" : "cursor-pointer"}
@@ -250,7 +272,6 @@ export default function RoomsPage() {
                                         router.push(`/canvas/${room.slug}`);
                                     }}
                                 >
-                                    {/* NUMBER BOX — REMOVE COMPLETELY IF DELETED */}
                                     {!room._deleted && (
                                         <div
                                             className="
@@ -264,7 +285,6 @@ export default function RoomsPage() {
                                         </div>
                                     )}
 
-                                    {/* TEXT */}
                                     {!room._deleted ? (
                                         <div className="text-lg md:text-xl font-semibold">
                                             {room.slug}
@@ -276,7 +296,6 @@ export default function RoomsPage() {
                                     )}
                                 </div>
 
-                                {/* DELETE BUTTON — HIDDEN IF DELETED */}
                                 {!room._deleted && (
                                     <button
                                         className="
@@ -293,14 +312,12 @@ export default function RoomsPage() {
                                                     headers: { Authorization: token }
                                                 });
 
-                                                // Mark deleted
                                                 setRooms((prev: any[]) =>
                                                     prev.map((r) =>
                                                         r.id === room.id ? { ...r, _deleted: true } : r
                                                     )
                                                 );
 
-                                                // Remove card after delay
                                                 setTimeout(() => {
                                                     setRooms((prev: any[]) =>
                                                         prev.filter((r) => r.id !== room.id)
