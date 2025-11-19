@@ -13,10 +13,10 @@ export default function RoomsPage() {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     const userId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
 
-    const [rooms, setRooms] = useState([]);
+    const [rooms, setRooms] = useState<any[]>([]);
     const [createSlug, setCreateSlug] = useState("");
     const [searchSlug, setSearchSlug] = useState("");
-    const [searchResults, setSearchResults] = useState([]);
+    const [searchResults, setSearchResults] = useState<any[]>([]);
 
     useEffect(() => {
         if (!token) return router.push("/signin");
@@ -80,18 +80,16 @@ export default function RoomsPage() {
     return (
         <div className="
             min-h-screen bg-black text-white flex
-            flex-col md:flex-row     
+            flex-col md:flex-row
         ">
 
             {/* SIDEBAR */}
             <aside className="
-                w-full md:w-80 
-                min-h-fit md:min-h-screen 
-                bg-black border-b md:border-b-0 md:border-r border-gray-800 
+                w-full md:w-80
+                min-h-fit md:min-h-screen
+                bg-black border-b md:border-b-0 md:border-r border-gray-800
                 flex flex-col gap-8 p-6
             ">
-
-                {/* Title + Logout */}
                 <div className="flex items-center justify-between">
                     <h1
                         className="text-3xl font-bold tracking-tight cursor-pointer"
@@ -101,7 +99,7 @@ export default function RoomsPage() {
                     </h1>
 
                     <button
-                        className="text-white hover:text-red-400 transition"
+                        className="bg-white text-black border border-white rounded-lg px-4 flex items-center justify-center h-full shadow-sm hover:bg-black hover:text-white transition"
                         title="Logout"
                         onClick={() => {
                             localStorage.removeItem("token");
@@ -111,7 +109,7 @@ export default function RoomsPage() {
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            className="w-6 h-6"
+                            className="w-5 h-5"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -152,8 +150,8 @@ export default function RoomsPage() {
                     />
 
                     <div className="
-                        max-h-52 overflow-y-auto 
-                        border border-gray-200 rounded-lg 
+                        max-h-52 overflow-y-auto
+                        border border-gray-200 rounded-lg
                         p-2 space-y-2
                     ">
                         {searchResults.length === 0 && searchSlug && (
@@ -203,8 +201,8 @@ export default function RoomsPage() {
             {/* MAIN */}
             <main className="flex-1 p-4 md:p-6 md:pr-10">
                 <div className="
-                    bg-white text-black rounded-2xl shadow-xl 
-                    w-full h-full p-6 md:p-8 
+                    bg-white text-black rounded-2xl shadow-xl
+                    w-full h-full p-6 md:p-8
                     border border-gray-200 flex flex-col
                 ">
 
@@ -213,9 +211,9 @@ export default function RoomsPage() {
                     </h1>
 
                     <div className="
-                        flex-1 overflow-y-auto 
-                        border border-gray-200 rounded-lg 
-                        p-2 space-y-3 
+                        flex-1 overflow-y-auto
+                        border border-gray-200 rounded-lg
+                        p-2 space-y-3
                         max-h-[350px] md:max-h-[400px]
                     ">
                         {rooms.length === 0 && (
@@ -227,53 +225,127 @@ export default function RoomsPage() {
                         {rooms.map((room: any, index) => (
                             <div
                                 key={room.id}
-                                onClick={() => {
-                                    sessionStorage.setItem("currentRoom", JSON.stringify({
-                                        slug: room.slug,
-                                        admin: "You"
-                                    }));
+                                className={`
+            group flex items-center justify-between gap-4
+            p-4 md:p-5 rounded-xl w-full relative border
+            transition-all duration-300 ease-in-out
 
-                                    router.push(`/canvas/${room.slug}`);
-                                }}
-                                className="
-                                    group flex items-center gap-4 
-                                    bg-white text-black 
-                                    border border-black
-                                    p-4 md:p-5 rounded-xl w-full cursor-pointer
-                                    transition-all duration-300 ease-in-out
-                                    hover:bg-black hover:text-white hover:border-white
-                                "
+            ${room._deleted
+                                        ? "bg-white text-black border-black"
+                                        : "bg-white text-black border-black hover:bg-black hover:text-white hover:border-white"}
+        `}
                             >
+                                {/* LEFT SIDE */}
                                 <div
-                                    className="
-                                        px-4 py-1 bg-black text-white 
-                                        rounded-lg text-sm font-semibold shadow-sm
-                                        transition-all duration-300
-                                        group-hover:bg-white group-hover:text-black
-                                    "
+                                    className={`flex items-center gap-4 flex-1 
+                ${room._deleted ? "justify-center cursor-default" : "cursor-pointer"}
+            `}
+                                    onClick={() => {
+                                        if (room._deleted) return;
+
+                                        sessionStorage.setItem("currentRoom", JSON.stringify({
+                                            slug: room.slug,
+                                            admin: "You"
+                                        }));
+                                        router.push(`/canvas/${room.slug}`);
+                                    }}
                                 >
-                                    {index + 1}
+                                    {/* NUMBER BOX — REMOVE COMPLETELY IF DELETED */}
+                                    {!room._deleted && (
+                                        <div
+                                            className="
+                        px-4 py-1 rounded-lg text-sm font-semibold shadow-sm
+                        bg-black text-white
+                        transition-all duration-300
+                        group-hover:bg-white group-hover:text-black
+                    "
+                                        >
+                                            {index + 1}
+                                        </div>
+                                    )}
+
+                                    {/* TEXT */}
+                                    {!room._deleted ? (
+                                        <div className="text-lg md:text-xl font-semibold">
+                                            {room.slug}
+                                        </div>
+                                    ) : (
+                                        <div className="text-black text-sm font-semibold text-center w-full">
+                                            Room deleted successfully
+                                        </div>
+                                    )}
                                 </div>
 
-                                <div className="text-lg md:text-xl font-semibold">
-                                    {room.slug}
-                                </div>
+                                {/* DELETE BUTTON — HIDDEN IF DELETED */}
+                                {!room._deleted && (
+                                    <button
+                                        className="
+                    bg-white text-black border border-white
+                    rounded-lg p-2 shadow-sm
+                    hover:bg-black hover:text-white
+                    transition
+                "
+                                        onClick={async (e) => {
+                                            e.stopPropagation();
+
+                                            try {
+                                                await axios.delete(`${base}/room/${room.id}`, {
+                                                    headers: { Authorization: token }
+                                                });
+
+                                                // Mark deleted
+                                                setRooms((prev: any[]) =>
+                                                    prev.map((r) =>
+                                                        r.id === room.id ? { ...r, _deleted: true } : r
+                                                    )
+                                                );
+
+                                                // Remove card after delay
+                                                setTimeout(() => {
+                                                    setRooms((prev: any[]) =>
+                                                        prev.filter((r) => r.id !== room.id)
+                                                    );
+                                                }, 1500);
+
+                                            } catch (err: any) {
+                                                alert(
+                                                    err?.response?.data?.message ||
+                                                    "Failed to delete room"
+                                                );
+                                            }
+                                        }}
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="w-5 h-5"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M6 18L18 6M6 6l12 12"
+                                            />
+                                        </svg>
+                                    </button>
+                                )}
                             </div>
                         ))}
+
                     </div>
 
                     <div className="
-                        mt-auto pt-6 
-                        border-t border-gray-300 
-                        text-center text-gray-500 
+                        mt-auto pt-6
+                        border-t border-gray-300
+                        text-center text-gray-500
                         text-xs select-none
                     ">
                         DrawBoard • v1.0.0 • sanjitxdutta © 2025
                     </div>
-
                 </div>
             </main>
-
         </div>
     );
 }
