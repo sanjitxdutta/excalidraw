@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { Button } from "@repo/ui/button";
-import { Card } from "@repo/ui/card";
+import { Button } from "../ui/button";
+import { Card } from "../ui/card";
 import { PenTool, Users, Share2, Cloud, Github } from "lucide-react";
 import { useRouter } from "next/navigation";
 
