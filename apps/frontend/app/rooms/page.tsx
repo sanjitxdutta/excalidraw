@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { Button } from "@repo/ui/button";
+import { Button } from "../../ui/button"
 
 const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 

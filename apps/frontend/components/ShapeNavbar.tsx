@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Card } from "@repo/ui/card";
+import { Card } from "../ui/card";
 import {
     Circle,
     Square,

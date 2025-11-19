@@ -9,7 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@repo/ui": "workspace:*",
     "axios": "^1.12.2",
     "framer-motion": "^12.23.24",
     "lucide-react": "^0.544.0",

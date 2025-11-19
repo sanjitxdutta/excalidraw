@@ -4,7 +4,7 @@ import { X, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { Button } from "@repo/ui/button";
+import { Button } from "../ui/button"
 
 type AuthPageProps = {
     isSignin: boolean;
