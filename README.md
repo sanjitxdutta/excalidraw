@@ -84,10 +84,8 @@ drawboard/
 
 ### 🎨 Canvas
 - Draw shapes (rectangle, line, text)
-- Move & update shapes
 - Delete shapes
 - Real-time syncing through WebSockets
-- Undo/Redo
 - Persistent shapes in DB
 
 ### 💬 Chat
