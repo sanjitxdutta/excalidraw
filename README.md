@@ -46,7 +46,6 @@ A powerful, minimal, fast, and beautifully engineered drawing platform where use
 - Custom message protocol for:
   - join room  
   - draw shape  
-  - update shape  
   - delete shape  
   - chat messages  
 
@@ -160,7 +159,6 @@ drawboard/
 | `"join"`   | `{ roomId, userId }`           | Join specific room |
 | `"chat"`   | `{ roomId, userId, text }`     | Send chat message  |
 | `"draw"`   | `{ roomId, shape }`            | Create shape       |
-| `"update"` | `{ roomId, shapeId, updates }` | Update shape       |
 | `"delete"` | `{ roomId, shapeId }`          | Delete shape       |
 
 ---
